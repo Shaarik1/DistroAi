@@ -1,0 +1,102 @@
+syntax = "proto3";
+
+package distroai;
+
+// -------------------------------------------------------------------
+// SERVICE DEFINITIONS
+// -------------------------------------------------------------------
+
+// The Brain: Runs on the Head Node
+service SchedulerService {
+    // Workers call this to join the cluster
+    rpc RegisterWorker (WorkerRegistration) returns (RegistrationResponse);
+    
+    // Workers call this every X seconds to say "I'm alive"
+    rpc SendHeartbeat (Heartbeat) returns (Empty);
+    
+    // Clients call this to submit a function to run
+    rpc SubmitTask (TaskRequest) returns (TaskSubmissionResponse);
+    
+    // Clients call this to check if a result is ready
+    rpc GetResultLocation (ResultRequest) returns (ObjectLocation);
+}
+
+// The Muscle: Runs on the Worker Nodes
+service WorkerService {
+    rpc ExecuteTask (TaskDefinition) returns (TaskStatus);
+    rpc GetResult (ResultRequest) returns (ResultResponse); // <--- NEW
+}
+
+// -------------------------------------------------------------------
+// MESSAGE TYPES
+// -------------------------------------------------------------------
+
+message Empty {}
+
+// --- Node Management ---
+
+message WorkerRegistration {
+    string address = 1;      // IP:Port of the worker
+    Resources total_resources = 2; // e.g., 8 CPU, 1 GPU
+}
+
+message RegistrationResponse {
+    string worker_id = 1;    // UUID assigned by Head Node
+    bool success = 2;
+}
+
+message Heartbeat {
+    string worker_id = 1;
+    Resources available_resources = 2; // Dynamic: "I currently have 2 CPUs free"
+    double timestamp = 3;
+}
+
+message Resources {
+    double num_cpus = 1;
+    double num_gpus = 2;
+    int64 memory_mb = 3;
+}
+
+// --- Task Execution ---
+
+message TaskRequest {
+    string function_name = 1;
+    bytes function_payload = 2; // Cloudpickled function code
+    bytes args_payload = 3;     // Cloudpickled arguments
+    Resources resources_required = 4; // "I need 1 GPU for this"
+}
+
+message TaskSubmissionResponse {
+    string task_id = 1;
+    string result_object_id = 2;
+    string worker_address = 3;  // <--- NEW: "Go ask this guy for the result"
+}
+
+message TaskDefinition {
+    string task_id = 1;
+    bytes function_payload = 2;
+    bytes args_payload = 3;
+}
+
+message TaskStatus {
+    string task_id = 1;
+    bool success = 2;
+    string error_message = 3;
+}
+
+// --- Data Retrieval ---
+
+message ResultRequest {
+    string result_object_id = 1;
+}
+
+message ObjectLocation {
+    bool ready = 1;
+    string worker_address = 2; // "Go ask 192.168.1.5 for the data"
+    bytes direct_data = 3;     // Optional: If small, send it directly
+}
+
+message ResultResponse {
+    bool ready = 1;     // Is the calculation finished?
+    bytes result = 2;   // The pickled data (e.g., "30")
+}
