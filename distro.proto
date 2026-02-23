@@ -2,10 +2,6 @@ syntax = "proto3";
 
 package distroai;
 
-// -------------------------------------------------------------------
-// SERVICE DEFINITIONS
-// -------------------------------------------------------------------
-
 // The Brain: Runs on the Head Node
 service SchedulerService {
     // Workers call this to join the cluster
@@ -27,13 +23,11 @@ service WorkerService {
     rpc GetResult (ResultRequest) returns (ResultResponse); // <--- NEW
 }
 
-// -------------------------------------------------------------------
-// MESSAGE TYPES
-// -------------------------------------------------------------------
+// Message types 
 
 message Empty {}
 
-// --- Node Management ---
+// Node Management
 
 message WorkerRegistration {
     string address = 1;      // IP:Port of the worker
@@ -93,7 +87,7 @@ message ResultRequest {
 message ObjectLocation {
     bool ready = 1;
     string worker_address = 2; // "Go ask 192.168.1.5 for the data"
-    bytes direct_data = 3;     // Optional: If small, send it directly
+    bytes direct_data = 3; 
 }
 
 message ResultResponse {
