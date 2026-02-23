@@ -51,7 +51,7 @@ message Resources {
     int64 memory_mb = 3;
 }
 
-// --- Task Execution ---
+// Task Execution 
 
 message TaskRequest {
     string function_name = 1;
