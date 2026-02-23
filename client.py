@@ -82,29 +82,27 @@ class RemoteFunction:
 def remote(func):
     return RemoteFunction(func)
 
-# ==========================================
+
 # USER CODE STARTS HERE
-# ==========================================
 
 if __name__ == "__main__":
     print("--- DISTRO AI CLIENT ---")
     
-    # 1. Define a function we want to run on the cluster
+    # 1. Define a function to run on the cluster
     @remote
     def heavy_computation(x, y):
         # Imports must happen INSIDE the function because 
         # this runs on a machine that might not have imported them yet.
         import time 
         print(f"I am running on a worker! Calculating {x} + {y}")
-        time.sleep(1) # Simulate hard work
+        time.sleep(1) 
         return x + y
 
-    # 2. Fire it off!
     print("Submitting task to cluster...")
     task_id = heavy_computation.remote(10, 20)
     
     if task_id:
         print("Waiting for result...")
-        result = _client.get(task_id) # <--- THIS IS THE MAGIC LINE
+        result = _client.get(task_id)
         
         print(f"🚀 FINAL RESULT: {result}")
