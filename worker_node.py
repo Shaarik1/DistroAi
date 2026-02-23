@@ -10,7 +10,7 @@ import cloudpickle
 import distro_pb2
 import distro_pb2_grpc
 
-# --- CONFIG ---
+# Configuration
 HEAD_NODE_ADDRESS = 'localhost:50051'
 MY_PORT = 50052 # In a real system, this would be random or assigned
 MY_ADDRESS = f'localhost:{MY_PORT}'
@@ -30,7 +30,7 @@ class WorkerService(distro_pb2_grpc.WorkerServiceServicer):
             print(f"[Worker] Running function...")
             result = func(*args)
             
-            # 3. STORE RESULT (New!)
+            # 3. Store Result 
             result_payload = cloudpickle.dumps(result)
             worker_results[request.task_id] = result_payload
             print(f"✅ Result computed and stored: {result}")
