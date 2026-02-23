@@ -22,7 +22,7 @@ class WorkerService(distro_pb2_grpc.WorkerServiceServicer):
     def ExecuteTask(self, request, context):
         print(f"[Worker] Received Task ID: {request.task_id}")
         try:
-            # 1. Deserialize
+            # 1. Deserialise
             func = cloudpickle.loads(request.function_payload)
             args = cloudpickle.loads(request.args_payload)
             
